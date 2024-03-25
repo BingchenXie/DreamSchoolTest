@@ -100,18 +100,50 @@ def main(date,currency):
             #查找此tr标签下全部td
             tds = secondRow.find_all('td')
             if len(tds) >3:
-                print(tds[3].get_text(strip=True))
-                # 使用格式化字符串确保每个字段长度达到预期，并用空格进行补足
-                with open(filePath, "a") as file:
-                    file.write(date + "  " + currency + "  " +
-                               tds[3].get_text(strip=True) + "  " + currencyDict[currency] + "\n")
+                result = tds[3].get_text(strip=True)
+                if len(result)>0:
+                    print(result)
+                    # 使用格式化字符串确保每个字段长度达到预期，并用空格进行补足
+                    with open(filePath, "a") as file:
+                        file.write(date + "  " + currency + "  " +
+                                result + "  " + currencyDict[currency] + "\n")
+                    return result
+                else:
+                    print("未查询到相应的记录 ErrorType:04! td is empty.")
             else:
                 print("未查询到相应的记录 ErrorType:03! Second tr does not have enough tds.")
         else:
             print("未查询到相应的记录 ErrorType:02! Second table does not have enough rows.")
     else:
         print("未查询到相应的记录 ErrorType:01! Second table not found.")
+    return -1
 
+def preprocess(input1,input2):
+    try:
+        # 使用datetime.strptime()方法将字符串解析为日期对象
+        dateObj = datetime.strptime(input1, '%Y%m%d')
+    except:
+        print("请检查输入的日期")
+        return -1
+        
+    # 使用strftime()方法将日期对象格式化为指定格式的字符串
+    dateStr = dateObj.strftime('%Y-%m-%d')
+    # 创建2014年1月1日的日期对象
+    date2014 = datetime(2014, 1, 1)
+    # 获取当前日期时间
+    dateNow = datetime.now()
+    if dateObj<=date2014:
+        print("输入日期应晚于2014年1月1日");
+        return -1
+    elif dateObj>dateNow:
+        print("输入日期不应晚于今日");
+        return -1
+    elif input2 not in currencyDict:
+        print(currencyDict);
+        print("币种符号输入错误，支持以上币种");
+        return -1
+    else:
+        return main(dateStr,input2);
 
 if __name__=="__main__":
     # 获取命令行参数
@@ -123,21 +155,4 @@ if __name__=="__main__":
         # 提取输入参数
         input1 = args[1]
         input2 = args[2].upper() #转换以支持小写输入
-        
-        # 使用datetime.strptime()方法将字符串解析为日期对象
-        dateObj = datetime.strptime(input1, '%Y%m%d')
-        # 使用strftime()方法将日期对象格式化为指定格式的字符串
-        dateStr = dateObj.strftime('%Y-%m-%d')
-        # 创建2014年1月1日的日期对象
-        date2014 = datetime(2014, 1, 1)
-        # 获取当前日期时间
-        dateNow = datetime.now()
-        if dateObj<=date2014:
-            print("输入日期应晚于2014年1月1日");
-        elif dateObj>dateNow:
-            print("输入日期不应晚于今日");
-        elif input2 not in currencyDict:
-            print(currencyDict);
-            print("币种符号输入错误，支持以上币种");
-        else:
-            main(dateStr,input2);
+        preprocess(input1,input2)
