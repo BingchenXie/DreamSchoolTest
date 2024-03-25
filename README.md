@@ -5,4 +5,4 @@
 >pip install requests \
 >pip install bs4
 
-## 题目二代码:stringCheck.py
+## 题目二代码: stringCheck.py
